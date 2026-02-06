@@ -49,33 +49,15 @@ jobs:
             "https://github.com/obsproject/obs-studio/releases/download/${{ env.OBS_VERSION }}/OBS-Studio-${{ env.OBS_VERSION }}-Windows.zip"
           7z x obs-release.zip -oobs-release
 
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Generate OBS import library
-        shell: cmd
+        shell: pwsh
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
-          cd obs-release\bin\64bit
-
-          REM Dump exports from obs.dll and generate .def + .lib
-          dumpbin /exports obs.dll > obs_exports.txt
-
-          powershell -Command "& {
-            $lines = Get-Content obs_exports.txt
-            $exports = [System.Collections.ArrayList]@('LIBRARY obs', 'EXPORTS')
-            $inSection = $false
-            foreach ($line in $lines) {
-              if ($line -match '^\s+ordinal\s+hint') { $inSection = $true; continue }
-              if ($inSection -and $line -match '^\s+\d+\s+[0-9A-Fa-f]+\s+[0-9A-Fa-f]+\s+(\S+)') {
-                [void]$exports.Add('  ' + $Matches[1])
-              }
-              if ($inSection -and $line.Trim() -eq '') { $inSection = $false }
-            }
-            $exports | Out-File -FilePath obs.def -Encoding ASCII
-          }"
-
-          lib /def:obs.def /out:obs.lib /machine:x64
-          echo "Generated obs.lib with exports:"
-          dir obs.lib
+          obs-plugin/scripts/generate-obs-lib.ps1 -ObsDllDir "${{ github.workspace }}/obs-release/bin/64bit"
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
