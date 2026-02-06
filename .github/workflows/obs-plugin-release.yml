@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  OBS_VERSION: '30.2.3'
+
 jobs:
   build:
     name: Build OBS SR Tracker Plugin
@@ -17,49 +20,104 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout OBS Studio source (for headers)
+        uses: actions/checkout@v4
+        with:
+          repository: obsproject/obs-studio
+          ref: ${{ env.OBS_VERSION }}
+          path: obs-studio-src
+          submodules: false
+
+      - name: Generate OBS config header
+        shell: bash
+        run: |
+          mkdir -p obs-studio-src/build/config
+          cat > obs-studio-src/build/config/obsconfig.h << 'HEADER'
+          #pragma once
+          #define OBS_VERSION "30.2.3"
+          #define OBS_VERSION_CANONICAL "30.2.3"
+          #define OBS_DATA_PATH "../../data"
+          #define OBS_INSTALL_PREFIX ""
+          #define OBS_PLUGIN_DESTINATION "obs-plugins/64bit"
+          #define OBS_UNIX_STRUCTURE 0
+          HEADER
+
+      - name: Download OBS Studio release (for DLLs)
+        shell: bash
+        run: |
+          curl -L -o obs-release.zip \
+            "https://github.com/obsproject/obs-studio/releases/download/${{ env.OBS_VERSION }}/OBS-Studio-${{ env.OBS_VERSION }}-Windows.zip"
+          7z x obs-release.zip -oobs-release
+
+      - name: Generate OBS import library
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          cd obs-release\bin\64bit
+
+          REM Dump exports from obs.dll and generate .def + .lib
+          dumpbin /exports obs.dll > obs_exports.txt
+
+          powershell -Command "& {
+            $lines = Get-Content obs_exports.txt
+            $exports = [System.Collections.ArrayList]@('LIBRARY obs', 'EXPORTS')
+            $inSection = $false
+            foreach ($line in $lines) {
+              if ($line -match '^\s+ordinal\s+hint') { $inSection = $true; continue }
+              if ($inSection -and $line -match '^\s+\d+\s+[0-9A-Fa-f]+\s+[0-9A-Fa-f]+\s+(\S+)') {
+                [void]$exports.Add('  ' + $Matches[1])
+              }
+              if ($inSection -and $line.Trim() -eq '') { $inSection = $false }
+            }
+            $exports | Out-File -FilePath obs.def -Encoding ASCII
+          }"
+
+          lib /def:obs.def /out:obs.lib /machine:x64
+          echo "Generated obs.lib with exports:"
+          dir obs.lib
+
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+          vcpkgGitCommitId: 'a7b6122f6b6504d16d96117336a0562693579933'
 
       - name: Install vcpkg dependencies
+        shell: bash
         run: vcpkg install tesseract:x64-windows curl:x64-windows
-        shell: bash
-
-      - name: Download OBS Studio SDK
-        run: |
-          curl -L -o obs-studio.zip https://github.com/obsproject/obs-studio/releases/download/30.2.0/OBS-Studio-30.2.0-Windows.zip
-          7z x obs-studio.zip -o"${{ runner.temp }}/obs-studio"
-        shell: bash
-
-      - name: Download OBS SDK libs
-        run: |
-          curl -L -o obs-deps.zip https://github.com/obsproject/obs-studio/releases/download/30.2.0/OBS-Studio-30.2.0-Sources.tar.xz
-          mkdir -p "${{ runner.temp }}/obs-sdk"
-        shell: bash
 
       - name: Configure CMake
         working-directory: obs-plugin
+        shell: cmd
         run: |
-          cmake --preset windows-x64 `
-            -DCMAKE_PREFIX_PATH="${{ runner.temp }}/obs-studio" `
-            -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+          cmake -B build_x64 -G "Visual Studio 17 2022" -A x64 ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows ^
+            -DOBS_SOURCE_DIR="%GITHUB_WORKSPACE%\obs-studio-src" ^
+            -DOBS_LIB_DIR="%GITHUB_WORKSPACE%\obs-release\bin\64bit"
 
       - name: Build
         working-directory: obs-plugin
-        run: cmake --build --preset windows-x64 --config Release
+        shell: cmd
+        run: cmake --build build_x64 --config Release
 
       - name: Download Tesseract trained data
         working-directory: obs-plugin
-        run: |
-          curl -L -o tessdata/eng.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
         shell: bash
+        run: |
+          curl -L -o tessdata/eng.traineddata \
+            https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+
+      - name: Install Inno Setup
+        shell: cmd
+        run: choco install innosetup -y
 
       - name: Build installer
         working-directory: obs-plugin
+        shell: cmd
         run: |
-          choco install innosetup -y
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
