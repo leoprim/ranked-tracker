@@ -1,0 +1,7 @@
+# Tesseract trained data (large binary, download separately)
+tessdata/*.traineddata
+
+# Build output
+build_x64/
+build/
+out/

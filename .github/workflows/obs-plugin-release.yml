@@ -1,0 +1,90 @@
+name: OBS Plugin Release
+
+on:
+  push:
+    tags:
+      - 'obs-plugin-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build OBS SR Tracker Plugin
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+
+      - name: Install vcpkg dependencies
+        run: vcpkg install tesseract:x64-windows curl:x64-windows
+        shell: bash
+
+      - name: Download OBS Studio SDK
+        run: |
+          curl -L -o obs-studio.zip https://github.com/obsproject/obs-studio/releases/download/30.2.0/OBS-Studio-30.2.0-Windows.zip
+          7z x obs-studio.zip -o"${{ runner.temp }}/obs-studio"
+        shell: bash
+
+      - name: Download OBS SDK libs
+        run: |
+          curl -L -o obs-deps.zip https://github.com/obsproject/obs-studio/releases/download/30.2.0/OBS-Studio-30.2.0-Sources.tar.xz
+          mkdir -p "${{ runner.temp }}/obs-sdk"
+        shell: bash
+
+      - name: Configure CMake
+        working-directory: obs-plugin
+        run: |
+          cmake --preset windows-x64 `
+            -DCMAKE_PREFIX_PATH="${{ runner.temp }}/obs-studio" `
+            -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        working-directory: obs-plugin
+        run: cmake --build --preset windows-x64 --config Release
+
+      - name: Download Tesseract trained data
+        working-directory: obs-plugin
+        run: |
+          curl -L -o tessdata/eng.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+        shell: bash
+
+      - name: Build installer
+        working-directory: obs-plugin
+        run: |
+          choco install innosetup -y
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-sr-tracker-installer
+          path: obs-plugin/Output/OBS-SR-Tracker-Setup-*.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: OBS SR Tracker ${{ github.ref_name }}
+          body: |
+            ## OBS SR Tracker Plugin
+
+            Download and run the installer `.exe` below. It will automatically install the plugin into your OBS Studio installation.
+
+            ### Requirements
+            - Windows 10/11 (64-bit)
+            - OBS Studio 30.x
+
+            ### Install
+            1. Download `OBS-SR-Tracker-Setup-*.exe` below
+            2. Run the installer and select your OBS Studio folder
+            3. Restart OBS Studio
+            4. Add an "SR Tracker" source to your scene
+          files: obs-plugin/Output/OBS-SR-Tracker-Setup-*.exe
+          draft: false
+          prerelease: false

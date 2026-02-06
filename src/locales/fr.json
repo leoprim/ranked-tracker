@@ -1,0 +1,85 @@
+{
+  "RootLayout": {
+    "home_link": "Accueil",
+    "about_link": "A propos",
+    "portfolio_link": "Portfolio",
+    "download_link": "Télécharger",
+    "sign_in_link": "Se connecter",
+    "sign_up_link": "S'inscrire"
+  },
+  "BaseTemplate": {
+    "description": "Code de démarrage pour Next.js avec Tailwind CSS",
+    "footer_text": "© {year} {name}. Fait avec <author></author>."
+  },
+  "Index": {
+    "meta_title": "Présentation de Next.js Boilerplate",
+    "meta_description": "Next js Boilerplate est le code de démarrage parfait pour votre projet. Construisez votre application React avec le framework Next.js.",
+    "sponsors_title": "Partenaires"
+  },
+  "About": {
+    "meta_title": "A propos",
+    "meta_description": "A propos description",
+    "about_paragraph": "Bienvenue sur notre page À propos ! Nous sommes une équipe de passionnés et dévoués à la création de logiciels.",
+    "translation_powered_by": "Traduction propulsée par"
+  },
+  "Portfolio": {
+    "meta_title": "Portfolio",
+    "meta_description": "Bienvenue sur la page de mon portfolio !",
+    "presentation": "Bienvenue sur ma page portfolio ! Vous trouverez ici une collection soigneusement organisée de mon travail et de mes réalisations. À travers ce portfolio, je mets en valeur mon expertise, ma créativité et la valeur que je peux apporter à vos projets.",
+    "portfolio_name": "Portfolio {name}",
+    "error_reporting_powered_by": "Rapport d'erreur propulsé par",
+    "coverage_powered_by": "Couverture de code propulsée par"
+  },
+  "PortfolioSlug": {
+    "meta_title": "Portfolio {slug}",
+    "meta_description": "Description du Portfolio {slug}",
+    "header": "Portfolio {slug}",
+    "content": "Créé un ensemble de matériel promotionnel et d'éléments de marquage pour un événement d'entreprise. Conçu un thème visuellement unifié, englobant un logo, des affiches, des bannières et des actifs numériques. Intégrer l'identité de marque du client tout en l'insufflant à une approche contemporaine et innovante.",
+    "code_review_powered_by": "Code review propulsé par"
+  },
+  "Download": {
+    "meta_title": "Télécharger OBS SR Tracker",
+    "meta_description": "Téléchargez le plugin OBS SR Tracker pour afficher votre SR Warzone Ranked Play en overlay de stream.",
+    "title": "Télécharger OBS SR Tracker",
+    "description": "Capturez automatiquement votre SR Warzone Ranked Play depuis l'écran de jeu et affichez-le en overlay OBS. Synchronisez optionnellement votre SR avec le classement.",
+    "download_button": "Télécharger pour Windows",
+    "platform_note": "Windows 10/11 (64-bit) requis",
+    "requirements_title": "Configuration requise",
+    "req_os": "Windows 10 ou 11 (64-bit)",
+    "req_obs": "OBS Studio 30.x ou plus récent",
+    "install_title": "Installation",
+    "step_1": "Téléchargez l'installateur (.exe) avec le bouton ci-dessus",
+    "step_2": "Lancez l'installateur et sélectionnez votre dossier OBS Studio",
+    "step_3": "Redémarrez OBS Studio",
+    "step_4": "Ajoutez une source \"SR Tracker\" à votre scène",
+    "setup_title": "Configuration",
+    "setup_1": "Sélectionnez votre source de capture de jeu dans les propriétés du plugin",
+    "setup_2": "Définissez la zone de l'écran où apparaît votre numéro de SR (X, Y, Largeur, Hauteur)",
+    "setup_3": "Le SR apparaîtra en overlay texte — positionnez et redimensionnez-le dans votre scène",
+    "setup_4": "Entrez optionnellement votre URL d'API et clé pour synchroniser le SR avec le classement",
+    "api_title": "Synchronisation du classement",
+    "api_description": "Vous voulez votre SR dans le classement ? Entrez votre clé API dans les paramètres du plugin et votre SR se mettra à jour automatiquement sur le site après chaque match."
+  },
+  "SignIn": {
+    "meta_title": "Se connecter",
+    "meta_description": "Connectez-vous à votre compte avec facilité."
+  },
+  "SignUp": {
+    "meta_title": "S'inscrire",
+    "meta_description": "Créez un compte facilement grâce à notre processus d'inscription intuitif."
+  },
+  "Dashboard": {
+    "meta_title": "Tableau de bord",
+    "hello_message": "Bonjour {email}!",
+    "alternative_message": "Besoin de fonctionnalités avancées ? Multi-tenant et équipes, rôles et permissions, Shadcn UI, typage de bout en bout avec oRPC, paiement Stripe, mode clair / sombre. Essayez <url></url>.",
+    "max_message": "Ou, besoin d'une stack d'auth auto-hébergée (Better Auth) ? Essayez <url></url>."
+  },
+  "UserProfile": {
+    "meta_title": "Profil de l'utilisateur"
+  },
+  "DashboardLayout": {
+    "dashboard_link": "Tableau de bord",
+    "user_profile_link": "Gérer votre compte",
+    "sign_out": "Se déconnecter"
+  }
+}

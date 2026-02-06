@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-x64",
+      "displayName": "Windows x64",
+      "description": "Windows x64 build using Visual Studio",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build_x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-x64",
+      "configurePreset": "windows-x64",
+      "configuration": "Release"
+    }
+  ]
+}

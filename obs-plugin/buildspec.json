@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "obs-studio": {
+      "version": "30.2.0",
+      "repository": "https://github.com/obsproject/obs-studio",
+      "hash": ""
+    }
+  },
+  "tools": {
+    "vcpkg": {
+      "version": "2024.01.12",
+      "packages": ["tesseract:x64-windows", "curl:x64-windows"]
+    }
+  },
+  "platformConfig": {
+    "windows-x64": {
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64"
+    }
+  },
+  "name": "obs-sr-tracker",
+  "version": "1.0.0",
+  "author": "Ranked Tracker"
+}
