@@ -43,6 +43,7 @@
     "title": "Télécharger OBS SR Tracker",
     "description": "Capturez automatiquement votre SR Warzone Ranked Play depuis l'écran de jeu et affichez-le en overlay OBS. Synchronisez optionnellement votre SR avec le classement.",
     "download_button": "Télécharger pour Windows",
+    "coming_soon": "Bientôt disponible",
     "platform_note": "Windows 10/11 (64-bit) requis",
     "requirements_title": "Configuration requise",
     "req_os": "Windows 10 ou 11 (64-bit)",
